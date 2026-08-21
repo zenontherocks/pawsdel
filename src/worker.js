@@ -533,24 +533,24 @@ async function expireOrders(env) {
   }
 }
 
-// ── Email (Brevo) ────────────────────────────────────────────────────────────
+// ── Email (Resend) ────────────────────────────────────────────────────────────
 
 async function sendEmail(env, { to, subject, html }) {
-  if (!env.BREVO_API_KEY) return;
-  const senderEmail = env.BREVO_SENDER_EMAIL || 'orders@pawsdelivered.com';
-  const senderName  = env.BREVO_SENDER_NAME  || 'Paws Delivered';
+  if (!env.RESEND_API_KEY) return;
+  const senderEmail = env.RESEND_SENDER_EMAIL || 'orders@pawsdelivered.com';
+  const senderName  = env.RESEND_SENDER_NAME  || 'Paws Delivered';
   try {
-    await fetch('https://api.brevo.com/v3/smtp/email', {
+    await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'api-key': env.BREVO_API_KEY,
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        sender: { name: senderName, email: senderEmail },
-        to: [{ email: to }],
+        from: `${senderName} <${senderEmail}>`,
+        to: [to],
         subject,
-        htmlContent: html,
+        html,
       }),
     });
   } catch { /* email is best-effort; never block order processing */ }
