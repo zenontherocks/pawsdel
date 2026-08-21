@@ -330,6 +330,7 @@ const ALLOWED_SETTINGS_KEYS = new Set([
   'company_name', 'company_address', 'company_city', 'company_state', 'company_zip', 'company_phone',
   'markup_usd',
   'pbt_email', 'pbt_password',
+  'admin_notification_email',
 ]);
 // Never echoed back in plaintext once set — GET reports only whether a
 // value is present (`<key>_set`), and PUT leaves the stored value alone
@@ -613,10 +614,13 @@ async function sendOrderPaidEmails(env, orderId) {
     subject: `Your Paws Delivered order is confirmed — ${order.pet_name}`,
     html: buyerHtml,
   });
-  // Optional: only sent if an admin notification address is configured.
-  if (env.ADMIN_NOTIFICATION_EMAIL) {
+  // Optional: only sent if an admin notification address is configured
+  // (admin-console Settings page, not a Worker secret — same reasoning as
+  // the PBT login: nothing sensitive about an email address).
+  const { admin_notification_email } = await getSettingsMap(env, ['admin_notification_email']);
+  if (admin_notification_email) {
     await sendEmail(env, {
-      to: env.ADMIN_NOTIFICATION_EMAIL,
+      to: admin_notification_email,
       subject: `New confirmed order — ${order.pet_name} ($${order.amount_usd.toFixed(2)})`,
       html: adminHtml,
     });
