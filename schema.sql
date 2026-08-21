@@ -100,3 +100,4 @@ INSERT OR IGNORE INTO settings (key, value) VALUES ('company_phone', '417-451-22
 INSERT OR IGNORE INTO settings (key, value) VALUES ('markup_usd', '0');
 INSERT OR IGNORE INTO settings (key, value) VALUES ('pbt_email', '');
 INSERT OR IGNORE INTO settings (key, value) VALUES ('pbt_password', '');
+INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_notification_email', '');

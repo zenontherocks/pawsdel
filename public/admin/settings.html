@@ -17,7 +17,7 @@
 <body>
   <div class="admin-container">
     <h1>Settings</h1>
-    <p class="subtitle">CashApp payment config, company/waybill info, and the PBT scraper login.</p>
+    <p class="subtitle">CashApp payment config, company/waybill info, the PBT scraper login, and order notification email.</p>
     <div id="content"><div class="admin-card"><p class="admin-muted">Loading…</p></div></div>
   </div>
 
@@ -73,11 +73,20 @@
           <button class="admin-btn admin-btn-primary" id="savePbt">Save PBT Login</button>
           <div id="pbtMsg"></div>
         </div>
+
+        <div class="admin-card">
+          <h2>Order Notifications</h2>
+          <p class="admin-muted" style="margin-bottom:0.75rem">Where the "new confirmed order" copy is sent whenever you confirm a payment. The buyer's own confirmation email always goes to them regardless of this setting. Leave blank to skip the admin copy.</p>
+          ${field('admin_notification_email', 'Admin Notification Email', { type: 'email', placeholder: 'you@example.com' })}
+          <button class="admin-btn admin-btn-primary" id="saveNotify">Save Notification Email</button>
+          <div id="notifyMsg"></div>
+        </div>
       `;
 
       document.getElementById('saveCashapp').addEventListener('click', () => save(['cashapp_cashtag', 'cashapp_note', 'markup_usd'], 'cashappMsg'));
       document.getElementById('saveCompany').addEventListener('click', () => save(['company_name', 'company_address', 'company_city', 'company_state', 'company_zip', 'company_phone'], 'companyMsg'));
       document.getElementById('savePbt').addEventListener('click', () => save(['pbt_email', 'pbt_password'], 'pbtMsg'));
+      document.getElementById('saveNotify').addEventListener('click', () => save(['admin_notification_email'], 'notifyMsg'));
 
       try {
         await populate();
@@ -92,7 +101,8 @@
       const data = await res.json();
       const s = data.settings || {};
       ['cashapp_cashtag', 'cashapp_note', 'markup_usd', 'company_name', 'company_address',
-       'company_city', 'company_state', 'company_zip', 'company_phone', 'pbt_email'].forEach(key => {
+       'company_city', 'company_state', 'company_zip', 'company_phone', 'pbt_email',
+       'admin_notification_email'].forEach(key => {
         const el = document.getElementById(key);
         if (el && s[key] != null) el.value = s[key];
       });
