@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Settings — Paws Delivered Admin</title>
+  <style>
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 0.875rem; color: #666; margin-bottom: 2rem; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .password-status { font-size: 0.78rem; color: #888; margin-top: -0.2rem; margin-bottom: 0.6rem; }
+    .password-status.is-set { color: #166534; }
+  </style>
+  <script src="/admin/admin.js"></script>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Settings</h1>
+    <p class="subtitle">CashApp payment config, company/waybill info, and the PBT scraper login.</p>
+    <div id="content"><div class="admin-card"><p class="admin-muted">Loading…</p></div></div>
+  </div>
+
+  <script>
+    function field(id, label, opts) {
+      opts = opts || {};
+      const placeholder = opts.placeholder || '';
+      const control = opts.textarea
+        ? `<textarea id="${id}" placeholder="${placeholder}"></textarea>`
+        : `<input id="${id}" type="${opts.type || 'text'}" placeholder="${placeholder}" />`;
+      return `
+        <div class="admin-field">
+          <label for="${id}">${label}</label>
+          ${control}
+        </div>`;
+    }
+
+    async function loadPage() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="admin-card">
+          <h2>CashApp Payment Config</h2>
+          ${field('cashapp_cashtag', 'CashApp $Cashtag', { placeholder: '$YourCashtag' })}
+          ${field('cashapp_note', 'Extra instructions shown to buyers (optional)', { textarea: true })}
+          ${field('markup_usd', 'Markup added to every listing’s price (USD)', { type: 'number', placeholder: '0' })}
+          <button class="admin-btn admin-btn-primary" id="saveCashapp">Save CashApp Settings</button>
+          <div id="cashappMsg"></div>
+        </div>
+
+        <div class="admin-card">
+          <h2>Company / Waybill Info</h2>
+          <p class="admin-muted" style="margin-bottom:0.75rem">Shown as the "From" party on printed waybills.</p>
+          ${field('company_name', 'Company Name')}
+          ${field('company_address', 'Street Address')}
+          <div class="form-row-2">
+            ${field('company_city', 'City')}
+            ${field('company_state', 'State')}
+          </div>
+          <div class="form-row-2">
+            ${field('company_zip', 'ZIP Code')}
+            ${field('company_phone', 'Phone')}
+          </div>
+          <button class="admin-btn admin-btn-primary" id="saveCompany">Save Company Info</button>
+          <div id="companyMsg"></div>
+        </div>
+
+        <div class="admin-card">
+          <h2>PBT Source Login</h2>
+          <p class="admin-muted" style="margin-bottom:0.75rem">Credentials the scraper uses to log into pbtmarketplace.com. Stored in the database, not a deploy secret.</p>
+          ${field('pbt_email', 'PBT Email / Username')}
+          ${field('pbt_password', 'PBT Password', { type: 'password', placeholder: 'Leave blank to keep current password' })}
+          <div class="password-status" id="pbtPasswordStatus"></div>
+          <button class="admin-btn admin-btn-primary" id="savePbt">Save PBT Login</button>
+          <div id="pbtMsg"></div>
+        </div>
+      `;
+
+      document.getElementById('saveCashapp').addEventListener('click', () => save(['cashapp_cashtag', 'cashapp_note', 'markup_usd'], 'cashappMsg'));
+      document.getElementById('saveCompany').addEventListener('click', () => save(['company_name', 'company_address', 'company_city', 'company_state', 'company_zip', 'company_phone'], 'companyMsg'));
+      document.getElementById('savePbt').addEventListener('click', () => save(['pbt_email', 'pbt_password'], 'pbtMsg'));
+
+      try {
+        await populate();
+      } catch {
+        content.innerHTML = '<div class="admin-card"><p class="admin-muted">Failed to load settings.</p></div>';
+      }
+    }
+
+    async function populate() {
+      const res = await adminFetch('/api/admin/settings');
+      if (res.status === 401) { adminHandleUnauthorized(document.getElementById('content')); throw new Error('unauthorized'); }
+      const data = await res.json();
+      const s = data.settings || {};
+      ['cashapp_cashtag', 'cashapp_note', 'markup_usd', 'company_name', 'company_address',
+       'company_city', 'company_state', 'company_zip', 'company_phone', 'pbt_email'].forEach(key => {
+        const el = document.getElementById(key);
+        if (el && s[key] != null) el.value = s[key];
+      });
+      const statusEl = document.getElementById('pbtPasswordStatus');
+      if (s.pbt_password_set) {
+        statusEl.textContent = 'A PBT password is currently set.';
+        statusEl.classList.add('is-set');
+      } else {
+        statusEl.textContent = 'No PBT password set yet — the scraper cannot log in until one is added.';
+      }
+    }
+
+    async function save(keys, msgElId) {
+      const msgEl = document.getElementById(msgElId);
+      const body = {};
+      keys.forEach(k => { body[k] = document.getElementById(k).value; });
+      try {
+        const res = await adminFetch('/api/admin/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg(msgEl, 'Saved.', true);
+          if (keys.includes('pbt_password')) {
+            document.getElementById('pbt_password').value = '';
+            populate();
+          }
+        } else {
+          showMsg(msgEl, data.error || 'Failed to save.', false);
+        }
+      } catch {
+        showMsg(msgEl, 'Network error.', false);
+      }
+    }
+
+    function showMsg(el, text, ok) {
+      el.className = 'admin-msg ' + (ok ? 'admin-msg-ok' : 'admin-msg-err');
+      el.textContent = text;
+      setTimeout(() => { el.textContent = ''; el.className = ''; }, 4000);
+    }
+
+    adminTokenGate(document.getElementById('content'), loadPage);
+  </script>
+</body>
+</html>

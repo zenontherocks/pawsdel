@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact &mdash; Paws Delivered</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #2C5F8A; --coral: #E8604C; --dark: #1a1a1a; --gray: #555;
+      --light-gray: #F7F9FA; --white: #ffffff; --radius: 8px;
+      --bg: var(--white); --surface: var(--light-gray); --text: var(--dark);
+    }
+    :root[data-theme="dark"] { --bg: #12181C; --surface: #1B2328; --text: #ECECEC; --gray: #9c9c9c; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; max-width: 560px; width: 100%; margin: 0 auto; padding: 4rem 1.5rem; text-align: center; }
+    h1 { font-size: 2rem; font-weight: 900; margin-bottom: 1.5rem; }
+    .contact-card { background: var(--surface); border-radius: var(--radius); padding: 2rem; }
+    .contact-card p { font-size: 1.05rem; line-height: 1.8; color: var(--text); }
+    .contact-card a { color: var(--blue); font-weight: 700; text-decoration: none; }
+    .contact-card a:hover { text-decoration: underline; }
+    footer { background: var(--dark); color: #888; text-align: center; padding: 1.5rem 2rem; font-size: 0.85rem; }
+    footer a { color: var(--coral); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .cookie-notice { margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.75rem; color: #888; }
+    .cookie-btn { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; border: 1px solid #555; background: transparent; color: #ccc; cursor: pointer; }
+    .cookie-btn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+  </style>
+  <script src="/navbar.js"></script>
+  <script src="/shared.js"></script>
+</head>
+<body>
+
+<main>
+  <h1>Contact Us</h1>
+  <div class="contact-card">
+    <p>For delivery or other information call Puppy Travelers at<br>Office: <a href="tel:14174512252">417-451-2252</a> or <a href="tel:14176220359">417-622-0359</a></p>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; <span id="year"></span> Paws Delivered. All rights reserved.
+    &nbsp;&bull;&nbsp;<a href="/privacy">Privacy Policy</a>
+    &nbsp;&bull;&nbsp;<a href="/terms">Terms of Service</a>
+  </p>
+  <div class="cookie-notice" id="cookieNotice">
+    <span>We don&rsquo;t do cookies here.</span>
+    <button type="button" class="cookie-btn" data-choice="accept">Accept</button>
+    <button type="button" class="cookie-btn" data-choice="reluctant">Accept Reluctantly</button>
+  </div>
+</footer>
+
+</body>
+</html>

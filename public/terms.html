@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service &mdash; Paws Delivered</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #2C5F8A; --coral: #E8604C; --dark: #1a1a1a; --gray: #555;
+      --white: #ffffff; --radius: 8px; --bg: var(--white); --text: var(--dark);
+    }
+    :root[data-theme="dark"] { --bg: #12181C; --text: #ECECEC; --gray: #9c9c9c; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; max-width: 720px; width: 100%; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    h1 { font-size: 1.9rem; font-weight: 900; margin-bottom: 0.5rem; }
+    .updated { font-size: 0.85rem; color: var(--gray); margin-bottom: 2rem; }
+    h2 { font-size: 1.1rem; font-weight: 700; margin: 1.75rem 0 0.6rem; }
+    p, li { font-size: 0.92rem; color: var(--gray); line-height: 1.7; }
+    ul { margin-left: 1.2rem; margin-bottom: 0.5rem; }
+    footer { background: var(--dark); color: #888; text-align: center; padding: 1.5rem 2rem; font-size: 0.85rem; }
+    footer a { color: var(--coral); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .cookie-notice { margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.75rem; color: #888; }
+    .cookie-btn { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; border: 1px solid #555; background: transparent; color: #ccc; cursor: pointer; }
+    .cookie-btn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+  </style>
+  <script src="/navbar.js"></script>
+  <script src="/shared.js"></script>
+</head>
+<body>
+
+<main>
+  <h1>Terms of Service</h1>
+  <p class="updated">Last updated: August 2026</p>
+
+  <h2>Orders &amp; Payment</h2>
+  <p>Placing an order reserves the listing for a limited time while your payment is verified. Payment is made via CashApp using the $cashtag and payment reference code shown at checkout. Orders are not confirmed and listings are not guaranteed sold until we manually verify your payment and confirm the order.</p>
+  <p>If payment is not confirmed before the reservation expires, the listing is released and made available to other buyers.</p>
+
+  <h2>Delivery</h2>
+  <p>Ground transportation is arranged through our delivery partner, Puppy Travelers, after your order is confirmed. You'll be expected to meet the delivery vehicle at a designated time, at a location reasonably close to your address. Pets cannot be delivered until they are at least 8 weeks old. We deliver to most of the lower 48 United States.</p>
+  <p>The full purchase price is refundable if the pet cannot be delivered to you, minus a penalty if the failure to deliver is because you were late meeting the driver. No other warranty is expressed or implied.</p>
+
+  <h2>Listing Information</h2>
+  <p>Listing details (photos, age, weight, sex, breed, registration, and vaccination/worming records) are sourced from the original marketplace listing. While we make a good-faith effort to display this information accurately, we do not independently verify every detail and are not liable for inaccuracies in third-party-sourced listing data.</p>
+
+  <h2>Refunds &amp; Disputes</h2>
+  <p>Because payment is made directly via CashApp, refund requests are handled manually. Contact us as soon as possible if there's an issue with your order. We reserve the right to cancel an order and refund payment at our discretion.</p>
+
+  <h2>Limitation of Liability</h2>
+  <p>Paws Delivered and Puppy Travelers are not liable for any dissatisfaction or problems associated with animals transported, beyond what is covered by applicable insurance. We remain neutral in disputes between buyers and the original listing seller.</p>
+
+  <h2>Changes to These Terms</h2>
+  <p>We may update these terms from time to time. Continued use of the site after changes constitutes acceptance of the updated terms.</p>
+</main>
+
+<footer>
+  <p>&copy; <span id="year"></span> Paws Delivered. All rights reserved.
+    &nbsp;&bull;&nbsp;<a href="/privacy">Privacy Policy</a>
+    &nbsp;&bull;&nbsp;<a href="/terms">Terms of Service</a>
+  </p>
+  <div class="cookie-notice" id="cookieNotice">
+    <span>We don&rsquo;t do cookies here.</span>
+    <button type="button" class="cookie-btn" data-choice="accept">Accept</button>
+    <button type="button" class="cookie-btn" data-choice="reluctant">Accept Reluctantly</button>
+  </div>
+</footer>
+
+</body>
+</html>

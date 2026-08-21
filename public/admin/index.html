@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin Dashboard — Paws Delivered</title>
+  <style>
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 0.875rem; color: #666; margin-bottom: 2rem; }
+  </style>
+  <script src="/admin/admin.js"></script>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Admin Dashboard</h1>
+    <p class="subtitle">Overview of Paws Delivered's current state.</p>
+    <div id="content"><div class="admin-card"><p class="admin-muted">Loading…</p></div></div>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="admin-card"><p class="admin-muted">Loading…</p></div>';
+
+      try {
+        const [pendingRes, blacklistRes, petsRes] = await Promise.all([
+          adminFetch('/api/admin/orders?status=pending'),
+          adminFetch('/api/admin/seller-blacklist'),
+          fetch('/api/pets?page=1'),
+        ]);
+
+        if (pendingRes.status === 401 || blacklistRes.status === 401) {
+          adminHandleUnauthorized(content);
+          return;
+        }
+
+        const [pending, blacklist, pets] = await Promise.all([
+          pendingRes.json(), blacklistRes.json(), petsRes.json(),
+        ]);
+
+        const pendingOrders = pending.orders || [];
+        const awaitingConfirmation = pendingOrders.filter(o => o.marked_paid_at).length;
+
+        content.innerHTML = `
+          <div class="admin-stat-grid">
+            <div class="admin-stat">
+              <div class="admin-stat-value">${pendingOrders.length}</div>
+              <div class="admin-stat-label">Orders in Payment Queue</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-value">${awaitingConfirmation}</div>
+              <div class="admin-stat-label">Awaiting Your Confirmation</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-value">${pets.total ?? 0}</div>
+              <div class="admin-stat-label">Available Listings</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-value">${(blacklist.sellers || []).length}</div>
+              <div class="admin-stat-label">Blacklisted Sellers</div>
+            </div>
+          </div>
+          <div class="admin-card" style="margin-top:1.5rem">
+            <h2>Quick Links</h2>
+            <p class="admin-muted">Use the nav above to review the payment queue, manage the seller blacklist, or configure CashApp / company / PBT login settings.</p>
+          </div>
+        `;
+      } catch {
+        content.innerHTML = '<div class="admin-card"><p class="admin-muted">Failed to load dashboard.</p></div>';
+      }
+    }
+
+    adminTokenGate(document.getElementById('content'), loadDashboard);
+  </script>
+</body>
+</html>

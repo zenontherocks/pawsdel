@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Orders — Paws Delivered Admin</title>
+  <style>
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 0.875rem; color: #666; margin-bottom: 2rem; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .check-col { width: 2rem; }
+    .ref-code { font-family: monospace; font-weight: 700; }
+    .marked-badge { display: inline-block; background: #fff4e5; color: #92400e; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 100px; margin-left: 0.4rem; }
+    .note-input { width: 100%; padding: 0.35rem 0.5rem; border: 1.5px solid #ddd; border-radius: 6px; font-size: 0.8rem; font-family: inherit; margin-top: 0.3rem; }
+  </style>
+  <script src="/admin/admin.js"></script>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Orders</h1>
+    <p class="subtitle">Confirm CashApp payments and print waybills for completed sales.</p>
+    <div id="content"><div class="admin-card"><p class="admin-muted">Loading…</p></div></div>
+  </div>
+
+  <script>
+    function waybillUrl(orderIds) {
+      const ids = Array.isArray(orderIds) ? orderIds.join(',') : orderIds;
+      return adminUrl(`/admin/waybill.html?order_ids=${encodeURIComponent(ids)}`);
+    }
+
+    async function confirmPayment(orderId, btn) {
+      const row = btn.closest('tr');
+      const noteInput = row.querySelector('.note-input');
+      const note = noteInput ? noteInput.value.trim() : '';
+      btn.disabled = true;
+      btn.textContent = 'Confirming…';
+      try {
+        const res = await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/confirm-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note }),
+        });
+        if (res.ok) {
+          loadOrders();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          alert(data.error || 'Could not confirm payment.');
+          btn.disabled = false;
+          btn.textContent = 'Confirm Payment';
+        }
+      } catch {
+        alert('Network error.');
+        btn.disabled = false;
+        btn.textContent = 'Confirm Payment';
+      }
+    }
+
+    function pendingRow(o) {
+      return `
+        <tr>
+          <td>
+            <strong>${escHtml(o.pet_name)}</strong><br>
+            <span class="admin-muted">${escHtml(o.breed || '')}</span>
+          </td>
+          <td><span class="ref-code">${escHtml(o.payment_ref)}</span>${o.marked_paid_at ? '<span class="marked-badge">Marked Sent</span>' : ''}</td>
+          <td>${escHtml(o.buyer_name)}<br><span class="admin-muted">${escHtml(o.buyer_city)}, ${escHtml(o.buyer_state)}</span></td>
+          <td>$${Number(o.amount_usd).toFixed(2)}</td>
+          <td style="color:#888">${o.created_at ? o.created_at.slice(0, 16).replace('T', ' ') : ''}</td>
+          <td>
+            <button class="admin-btn admin-btn-primary" onclick="confirmPayment('${o.order_id}', this)">Confirm Payment</button>
+            <input type="text" class="note-input" placeholder="Optional note" />
+          </td>
+        </tr>`;
+    }
+
+    function soldRow(o) {
+      return `
+        <tr>
+          <td><input type="checkbox" class="order-check" value="${escHtml(o.order_id)}" /></td>
+          <td><strong>${escHtml(o.pet_name)}</strong></td>
+          <td>${escHtml(o.breed || '—')}</td>
+          <td>${escHtml(o.buyer_name)}</td>
+          <td>${escHtml(o.buyer_city)}, ${escHtml(o.buyer_state)}</td>
+          <td style="color:#888">${o.paid_at ? o.paid_at.slice(0, 10) : ''}</td>
+          <td>$${Number(o.amount_usd).toFixed(2)}</td>
+          <td><a class="admin-btn admin-btn-dark" href="${waybillUrl(o.order_id)}" target="_blank">Waybill</a></td>
+        </tr>`;
+    }
+
+    async function loadOrders() {
+      const content = document.getElementById('content');
+      try {
+        const [pendingRes, soldRes] = await Promise.all([
+          adminFetch('/api/admin/orders?status=pending'),
+          adminFetch('/api/admin/orders?status=paid'),
+        ]);
+        if (pendingRes.status === 401 || soldRes.status === 401) {
+          adminHandleUnauthorized(content);
+          return;
+        }
+        const pending = (await pendingRes.json()).orders || [];
+        const sold = (await soldRes.json()).orders || [];
+
+        content.innerHTML = `
+          <div class="admin-card">
+            <h2>Payment Queue (${pending.length})</h2>
+            <table class="admin-table">
+              <thead><tr><th>Pet</th><th>Ref Code</th><th>Buyer</th><th>Amount</th><th>Reserved</th><th></th></tr></thead>
+              <tbody>${pending.length ? pending.map(pendingRow).join('') : '<tr><td colspan="6" class="admin-empty">No pending orders.</td></tr>'}</tbody>
+            </table>
+          </div>
+          <div class="admin-card">
+            <div class="toolbar">
+              <h2 style="margin-bottom:0">Sold Orders (${sold.length})</h2>
+              <button class="admin-btn admin-btn-dark" id="printSelectedBtn" disabled>Print Selected</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th class="check-col"><input type="checkbox" id="selectAll" /></th><th>Pet</th><th>Breed</th><th>Buyer</th><th>Ship To</th><th>Paid</th><th>Amount</th><th></th></tr></thead>
+              <tbody id="soldBody">${sold.length ? sold.map(soldRow).join('') : '<tr><td colspan="8" class="admin-empty">No paid orders yet.</td></tr>'}</tbody>
+            </table>
+          </div>
+        `;
+
+        const selectAllBox = document.getElementById('selectAll');
+        const printBtn = document.getElementById('printSelectedBtn');
+        function getSelectedIds() {
+          return Array.from(document.querySelectorAll('.order-check:checked')).map(cb => cb.value);
+        }
+        function refreshPrintButton() { printBtn.disabled = getSelectedIds().length === 0; }
+
+        document.getElementById('soldBody').addEventListener('change', e => {
+          if (e.target.classList.contains('order-check')) refreshPrintButton();
+        });
+        if (selectAllBox) {
+          selectAllBox.addEventListener('change', () => {
+            document.querySelectorAll('.order-check').forEach(cb => cb.checked = selectAllBox.checked);
+            refreshPrintButton();
+          });
+        }
+        printBtn.addEventListener('click', () => {
+          const ids = getSelectedIds();
+          if (!ids.length) return;
+          window.open(waybillUrl(ids), '_blank');
+        });
+      } catch {
+        content.innerHTML = '<div class="admin-card"><p class="admin-muted">Failed to load orders.</p></div>';
+      }
+    }
+
+    adminTokenGate(document.getElementById('content'), loadOrders);
+  </script>
+</body>
+</html>

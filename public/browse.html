@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Pets &mdash; Paws Delivered</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2C5F8A;
+      --blue-dark: #234A6D;
+      --coral: #E8604C;
+      --coral-dark: #D14D3A;
+      --dark: #1a1a1a;
+      --gray: #555;
+      --border: #ddd;
+      --light-gray: #F7F9FA;
+      --white: #ffffff;
+      --radius: 8px;
+      --bg: var(--light-gray);
+      --surface: var(--white);
+      --text: var(--dark);
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #12181C;
+      --surface: #1B2328;
+      --text: #ECECEC;
+      --gray: #9c9c9c;
+      --border: #34363c;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    main { flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+    .page-header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    h1 { font-size: 1.75rem; font-weight: 800; }
+    .listing-count { font-size: 0.9rem; color: var(--gray); }
+
+    .filters { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .filter-btn { padding: 0.45rem 1rem; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    .pet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+
+    .pet-card { background: var(--surface); border-radius: var(--radius); box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+    .pet-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+    .pet-photo { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+    .pet-photo-placeholder { width: 100%; aspect-ratio: 1 / 1; background: #ebebeb; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc; }
+
+    .pet-info { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.25rem; flex: 1; }
+    .pet-name { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pet-meta { font-size: 0.82rem; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pet-price { margin-top: auto; padding-top: 0.6rem; font-size: 0.95rem; font-weight: 700; color: var(--coral); }
+
+    .state-box { text-align: center; padding: 4rem 1rem; color: var(--gray); grid-column: 1 / -1; }
+
+    .load-more-row { text-align: center; margin-top: 2rem; }
+    .btn-load-more { padding: 0.7rem 1.75rem; border-radius: var(--radius); border: 2px solid var(--blue); background: transparent; color: var(--blue); font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+    .btn-load-more:hover { background: var(--blue); color: #fff; }
+    .btn-load-more:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    footer { background: var(--dark); color: #888; text-align: center; padding: 1.5rem 2rem; font-size: 0.85rem; }
+    footer a { color: var(--coral); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .cookie-notice { margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.75rem; color: #888; }
+    .cookie-btn { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; border: 1px solid #555; background: transparent; color: #ccc; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .cookie-btn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+  </style>
+  <script src="/navbar.js"></script>
+  <script src="/shared.js"></script>
+</head>
+<body>
+
+<main>
+  <div class="page-header">
+    <h1>Browse Pets</h1>
+    <span class="listing-count" id="listingCount"></span>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-species="">All</button>
+    <button class="filter-btn" data-species="dog">Dogs</button>
+    <button class="filter-btn" data-species="cat">Cats</button>
+  </div>
+
+  <div class="pet-grid" id="petGrid">
+    <div class="state-box">Loading&hellip;</div>
+  </div>
+
+  <div class="load-more-row" id="loadMoreRow" style="display:none">
+    <button class="btn-load-more" id="loadMoreBtn">Load More</button>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; <span id="year"></span> Paws Delivered. All rights reserved.
+    &nbsp;&bull;&nbsp;<a href="/privacy">Privacy Policy</a>
+    &nbsp;&bull;&nbsp;<a href="/terms">Terms of Service</a>
+  </p>
+  <div class="cookie-notice" id="cookieNotice">
+    <span>We don&rsquo;t do cookies here.</span>
+    <button type="button" class="cookie-btn" data-choice="accept">Accept</button>
+    <button type="button" class="cookie-btn" data-choice="reluctant">Accept Reluctantly</button>
+  </div>
+</footer>
+
+<script>
+  let currentSpecies = '';
+  let currentPage = 1;
+  let allPets = [];
+
+  function petCard(p) {
+    const photo = p.photo_url
+      ? `<img class="pet-photo" src="${escHtml(p.photo_url)}" alt="${escHtml(p.name)}" loading="lazy" />`
+      : `<div class="pet-photo-placeholder">${SPECIES_ICON[p.species] || '&#128062;'}</div>`;
+    const age = ageFromDob(p.date_of_birth);
+    const metaParts = [p.breed, age].filter(Boolean);
+    return `
+      <a class="pet-card" href="/pet?id=${encodeURIComponent(p.id)}">
+        ${photo}
+        <div class="pet-info">
+          <div class="pet-name">${escHtml(p.name)}</div>
+          <div class="pet-meta">${escHtml(metaParts.join(' &middot; '))}</div>
+          <div class="pet-price">${formatUsd(p.price_usd)}</div>
+        </div>
+      </a>`;
+  }
+
+  async function loadPage(page, append) {
+    const grid = document.getElementById('petGrid');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const loadMoreRow = document.getElementById('loadMoreRow');
+    if (!append) grid.innerHTML = '<div class="state-box">Loading&hellip;</div>';
+    else loadMoreBtn.disabled = true;
+
+    try {
+      const params = new URLSearchParams({ page: String(page) });
+      if (currentSpecies) params.set('species', currentSpecies);
+      const res = await fetch('/api/pets?' + params.toString());
+      const data = await res.json();
+      const pets = data.pets || [];
+
+      if (!append) allPets = pets;
+      else allPets = allPets.concat(pets);
+
+      if (!allPets.length) {
+        grid.innerHTML = '<div class="state-box">No listings available right now. Check back soon!</div>';
+      } else {
+        grid.innerHTML = allPets.map(petCard).join('');
+      }
+
+      document.getElementById('listingCount').textContent =
+        data.total ? `${data.total} listing${data.total === 1 ? '' : 's'}` : '';
+
+      loadMoreRow.style.display = data.hasMore ? '' : 'none';
+      loadMoreBtn.disabled = false;
+      currentPage = page;
+    } catch {
+      if (!append) grid.innerHTML = '<div class="state-box">Could not load listings. Please refresh.</div>';
+    }
+  }
+
+  document.getElementById('filters').addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSpecies = btn.dataset.species;
+    loadPage(1, false);
+  });
+
+  document.getElementById('loadMoreBtn').addEventListener('click', () => loadPage(currentPage + 1, true));
+
+  loadPage(1, false);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About &mdash; Paws Delivered</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #2C5F8A; --coral: #E8604C; --dark: #1a1a1a; --gray: #555;
+      --white: #ffffff; --radius: 8px; --bg: var(--white); --text: var(--dark);
+    }
+    :root[data-theme="dark"] { --bg: #12181C; --text: #ECECEC; --gray: #9c9c9c; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; max-width: 680px; width: 100%; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    h1 { font-size: 2rem; font-weight: 900; margin-bottom: 1.25rem; }
+    p { font-size: 0.98rem; color: var(--gray); line-height: 1.75; margin-bottom: 1.1rem; }
+    footer { background: var(--dark); color: #888; text-align: center; padding: 1.5rem 2rem; font-size: 0.85rem; }
+    footer a { color: var(--coral); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .cookie-notice { margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.75rem; color: #888; }
+    .cookie-btn { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; border: 1px solid #555; background: transparent; color: #ccc; cursor: pointer; }
+    .cookie-btn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+  </style>
+  <script src="/navbar.js"></script>
+  <script src="/shared.js"></script>
+</head>
+<body>
+
+<main>
+  <h1>About Paws Delivered</h1>
+  <p>Paws Delivered connects buyers with available puppy and kitten listings and handles the logistics of getting them safely to their new homes.</p>
+  <p>We list detailed, verified information for every listing &mdash; photos, age, weight, sex, breed, registration, and vaccination/worming records &mdash; so you can make an informed decision before you buy.</p>
+  <p>Once your order is confirmed, we arrange ground transportation through our delivery partner, Puppy Travelers, coordinating a pickup time and location close to you.</p>
+  <p>Checkout is simple: no accounts, no complicated forms &mdash; just your shipping details and a CashApp payment.</p>
+</main>
+
+<footer>
+  <p>&copy; <span id="year"></span> Paws Delivered. All rights reserved.
+    &nbsp;&bull;&nbsp;<a href="/privacy">Privacy Policy</a>
+    &nbsp;&bull;&nbsp;<a href="/terms">Terms of Service</a>
+  </p>
+  <div class="cookie-notice" id="cookieNotice">
+    <span>We don&rsquo;t do cookies here.</span>
+    <button type="button" class="cookie-btn" data-choice="accept">Accept</button>
+    <button type="button" class="cookie-btn" data-choice="reluctant">Accept Reluctantly</button>
+  </div>
+</footer>
+
+</body>
+</html>

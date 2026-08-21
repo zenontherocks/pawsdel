@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How It Works &mdash; Paws Delivered</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #2C5F8A; --coral: #E8604C; --dark: #1a1a1a; --gray: #555;
+      --light-gray: #F7F9FA; --white: #ffffff; --radius: 8px;
+      --bg: var(--white); --surface: var(--light-gray); --text: var(--dark);
+    }
+    :root[data-theme="dark"] {
+      --bg: #12181C; --surface: #1B2328; --text: #ECECEC; --gray: #9c9c9c;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; max-width: 760px; width: 100%; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    h1 { font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem; }
+    .lead { color: var(--gray); font-size: 1rem; margin-bottom: 2.5rem; line-height: 1.6; }
+    .step-card { display: flex; gap: 1.25rem; background: var(--surface); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .step-num { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .step-card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step-card p { font-size: 0.92rem; color: var(--gray); line-height: 1.65; }
+    .step-card ul { margin: 0.5rem 0 0 1.1rem; font-size: 0.92rem; color: var(--gray); line-height: 1.7; }
+    .note-box { border-left: 4px solid var(--coral); background: var(--surface); border-radius: var(--radius); padding: 1.1rem 1.25rem; margin-top: 2rem; font-size: 0.9rem; color: var(--gray); line-height: 1.65; }
+    footer { background: var(--dark); color: #888; text-align: center; padding: 1.5rem 2rem; font-size: 0.85rem; }
+    footer a { color: var(--coral); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .cookie-notice { margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.75rem; color: #888; }
+    .cookie-btn { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; border: 1px solid #555; background: transparent; color: #ccc; cursor: pointer; }
+    .cookie-btn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+  </style>
+  <script src="/navbar.js"></script>
+  <script src="/shared.js"></script>
+</head>
+<body>
+
+<main>
+  <h1>How It Works</h1>
+  <p class="lead">From browsing to delivery, here's what to expect.</p>
+
+  <div class="step-card">
+    <div class="step-num">1</div>
+    <div>
+      <h2>Browse Available Listings</h2>
+      <p>Every listing includes real photos, age, weight, sex, breed, registration info, and vaccination/worming records so you know exactly what you're getting.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">2</div>
+    <div>
+      <h2>Reserve &amp; Pay with CashApp</h2>
+      <p>Submit your shipping and contact info to reserve the listing. You'll be shown our CashApp $cashtag along with a short reference code &mdash; include that code in your CashApp payment note so we can match it to your order.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">3</div>
+    <div>
+      <h2>Let Us Know You've Paid</h2>
+      <p>Once you've sent payment, click "I've Sent Payment" on your order. Your reservation stays held while we verify the payment on our end.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">4</div>
+    <div>
+      <h2>We Confirm Your Payment</h2>
+      <p>Our team checks CashApp for your payment and confirms your order. You'll get a confirmation once that's done &mdash; this isn't always instant, so please be patient.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">5</div>
+    <div>
+      <h2>Delivery</h2>
+      <p>We arrange ground transportation through our delivery partner, Puppy Travelers, and coordinate a pickup time and location near you.</p>
+      <ul>
+        <li>You'll need to meet the delivery vehicle at a designated time and location reasonably close to your address.</li>
+        <li>Pets cannot be delivered until they're at least 8 weeks old.</li>
+        <li>We deliver to most of the lower 48 United States.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note-box">
+    Questions about a delivery already in progress? Call Puppy Travelers directly at 417-451-2252 or 417-622-0359.
+  </div>
+</main>
+
+<footer>
+  <p>&copy; <span id="year"></span> Paws Delivered. All rights reserved.
+    &nbsp;&bull;&nbsp;<a href="/privacy">Privacy Policy</a>
+    &nbsp;&bull;&nbsp;<a href="/terms">Terms of Service</a>
+  </p>
+  <div class="cookie-notice" id="cookieNotice">
+    <span>We don&rsquo;t do cookies here.</span>
+    <button type="button" class="cookie-btn" data-choice="accept">Accept</button>
+    <button type="button" class="cookie-btn" data-choice="reluctant">Accept Reluctantly</button>
+  </div>
+</footer>
+
+</body>
+</html>

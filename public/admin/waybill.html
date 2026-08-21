@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Waybill — Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f4f4; color: #1a1a1a; padding: 2rem 1rem; }
+    .container { max-width: 780px; margin: 0 auto; }
+    .no-print .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .no-print h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; }
+    .token-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .token-row input { flex: 1; padding: 0.5rem 0.75rem; border: 1.5px solid #ddd; border-radius: 6px; font-size: 0.85rem; font-family: monospace; }
+    .token-row input:focus { outline: none; border-color: #2C5F8A; }
+    .btn { padding: 0.55rem 1.25rem; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-print { background: #2C5F8A; color: #fff; }
+    .btn-print:hover { background: #234A6D; }
+    .status { font-size: 0.85rem; color: #666; }
+
+    .copy { background: #fff; border: 2px solid #000; padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.85rem; }
+    .copy-header { margin-bottom: 0.75rem; }
+    .waybill-no { font-weight: 700; }
+    .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border: 1px solid #000; padding: 0.75rem; margin-bottom: 0.75rem; }
+    .party h3 { font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.35rem; }
+    .party p { line-height: 1.5; }
+    .disclaimer { border: 1px solid #000; padding: 0.6rem 0.75rem; font-size: 0.7rem; line-height: 1.45; margin-bottom: 0.75rem; }
+    .pet-row { display: flex; gap: 2rem; border: 1px solid #000; padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; align-items: center; }
+    .pet-row label { font-weight: 700; font-size: 0.75rem; margin-right: 0.4rem; }
+    .foodwater-table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; }
+    .foodwater-table caption { text-align: left; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .foodwater-table td { border: 1px solid #000; padding: 0.4rem 0.5rem; height: 1.6rem; }
+    .pickup-row { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; font-size: 0.8rem; }
+    .pickup-row span { border-bottom: 1px solid #000; display: inline-block; min-width: 140px; }
+    .collect-box { border: 1px solid #000; padding: 0.6rem 0.75rem; margin-bottom: 0.75rem; }
+    .collect-box .amount { font-weight: 800; font-size: 1rem; }
+    .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; font-size: 0.8rem; }
+    .signatures .line { border-bottom: 1px solid #000; margin-top: 1.5rem; margin-bottom: 0.2rem; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .no-print { display: none !important; }
+      .copy { border: 2px solid #000; page-break-after: always; margin: 0; }
+      .copy:last-child { page-break-after: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="no-print">
+      <h1>Waybill</h1>
+      <div class="card">
+        <div class="token-row">
+          <input type="password" id="tokenInput" placeholder="Paste your ADMIN_TOKEN here" autocomplete="off" />
+        </div>
+        <p class="status" id="statusMsg">Loading…</p>
+        <div style="margin-top:1rem">
+          <button class="btn btn-print" onclick="window.print()">Print</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="copies"></div>
+  </div>
+
+  <script>
+    const TOKEN_KEY = 'pd_admin_token';
+    const params = new URLSearchParams(location.search);
+    const orderIds = (params.get('order_ids') || params.get('order_id') || '')
+      .split(',').map(s => s.trim()).filter(Boolean);
+    const urlToken = params.get('token');
+    if (urlToken) sessionStorage.setItem(TOKEN_KEY, urlToken);
+    document.getElementById('tokenInput').value = sessionStorage.getItem(TOKEN_KEY) || '';
+
+    const TRANSPORTER = 'Puppy Travelers';
+
+    function getToken() {
+      const t = document.getElementById('tokenInput').value.trim();
+      if (t) sessionStorage.setItem(TOKEN_KEY, t);
+      return t;
+    }
+
+    function apiUrl(path) {
+      const t = getToken();
+      return t ? `${path}?token=${encodeURIComponent(t)}` : path;
+    }
+
+    function escHtml(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function disclaimer() {
+      return `It is agreed that the animals described herein are accepted in apparent good order and condition ` +
+        `(except as noted) for carriage with ${TRANSPORTER}. ${TRANSPORTER} reserves the right to reject any or all ` +
+        `animals for any or no reason. ${TRANSPORTER} does not accept and transport sick animals. ${TRANSPORTER} is ` +
+        `not responsible for any dissatisfaction or problems associated with animals transported. ${TRANSPORTER} is ` +
+        `not and cannot be associated with buy and/or selling of any animals. ${TRANSPORTER} has no liability beyond ` +
+        `that which our insurance carrier covers. ${TRANSPORTER} is solely and strictly a ground transportation ` +
+        `service. We must remain neutral in any and all disputes between the seller or buyer. ${TRANSPORTER} will ` +
+        `not transport any animal until paid to do so (this includes returns and rejected animals.) ${TRANSPORTER} ` +
+        `is not responsible for animals stolen or killed in transport. ${TRANSPORTER} does not compensate for ` +
+        `animals that become ill or expire during or after normal transport. Except as otherwise provided herein, ` +
+        `${TRANSPORTER} has no obligation to commence or complete transportation within a certain time or according ` +
+        `to any specific schedule, or to make connections with any other carrier, or for error in any statement of ` +
+        `times of arrival or departure. This Agreement is subject to, and will be interpreted in accordance with ` +
+        `the law of the state of Missouri, without regard to principles of conflicts of law.`;
+    }
+
+    function foodWaterTable() {
+      const rows = Array.from({ length: 6 }, () =>
+        `<tr><td>Date: ___/___/______  Time: ______ AM / PM</td></tr>`
+      ).join('');
+      return `
+        <table class="foodwater-table">
+          <caption>Last Date/Time Offered Food/Water</caption>
+          ${rows}
+        </table>`;
+    }
+
+    function renderCopy(order, fromInfo, signatureBlock) {
+      const buyerAddress = [order.buyer_address1, order.buyer_address2].filter(Boolean).join(', ');
+      return `
+        <div class="copy">
+          <div class="copy-header">
+            <div class="waybill-no">NON-NEGOTIABLE DOMESTIC WAYBILL #${escHtml(order.pbt_id || order.order_id)}</div>
+          </div>
+
+          <div class="parties">
+            <div class="party">
+              <h3>From: Seller/Company Name</h3>
+              <p>
+                ${escHtml(fromInfo.company_name)}<br>
+                ${escHtml(fromInfo.company_address)}<br>
+                ${escHtml(fromInfo.company_city)}, ${escHtml(fromInfo.company_state)} ${escHtml(fromInfo.company_zip)}<br>
+                Seller Telephone: ${escHtml(fromInfo.company_phone)}
+              </p>
+            </div>
+            <div class="party">
+              <h3>To: Buyer's Name</h3>
+              <p>
+                ${escHtml(order.buyer_name)}<br>
+                ${escHtml(buyerAddress)}<br>
+                ${escHtml(order.buyer_city)}, ${escHtml(order.buyer_state)} ${escHtml(order.buyer_zip)}<br>
+                Buyer Telephone: ${escHtml(order.buyer_phone)}
+              </p>
+            </div>
+          </div>
+
+          <div class="disclaimer">${escHtml(disclaimer())}</div>
+
+          <div class="pet-row">
+            <div>
+              <label>Breed</label>
+              <span>${escHtml(order.breed || 'Unlisted')}</span>
+            </div>
+            <div>
+              <label>Pet</label>
+              <span>${escHtml(order.pet_name)}</span>
+            </div>
+          </div>
+
+          ${foodWaterTable()}
+
+          <div class="pickup-row">
+            <div>Pickup Date: <span>&nbsp;</span></div>
+            <div>Pickup Time: <span>&nbsp;</span></div>
+            <div>Pickup Location: <span>&nbsp;</span></div>
+          </div>
+
+          <div class="collect-box">
+            <span class="amount">$0.00</span> TOTAL AMOUNT TO COLLECT &mdash; PAID IN FULL PRIOR TO SHIPPING (via CashApp)
+          </div>
+
+          <div class="disclaimer">
+            Seller certifies that the particulars on the face hereof are correct and that insofar as any part of the
+            consignment contains dangerous goods, such part is properly described by name and is in proper condition
+            for carriage by truck according to the applicable Dangerous Goods Regulations.
+          </div>
+
+          ${signatureBlock}
+        </div>`;
+    }
+
+    function renderWaybill(order, fromInfo) {
+      const signatures = `
+        <div class="signatures">
+          <div>
+            Buyer Acceptance Signature:
+            <div class="line"></div>
+          </div>
+          <div>
+            ${escHtml(TRANSPORTER)} / Authorized Agent Signature:
+            <div class="line"></div>
+          </div>
+        </div>`;
+
+      return renderCopy(order, fromInfo, signatures);
+    }
+
+    async function fetchOrder(orderId) {
+      const res = await fetch(apiUrl(`/api/admin/orders/${encodeURIComponent(orderId)}`));
+      if (res.status === 401) throw new Error('unauthorized');
+      if (!res.ok) throw new Error('not_found');
+      const data = await res.json();
+      return data.order;
+    }
+
+    async function fetchFromInfo() {
+      const res = await fetch(apiUrl('/api/admin/settings'));
+      if (res.status === 401) throw new Error('unauthorized');
+      const data = await res.json();
+      const s = data.settings || {};
+      return {
+        company_name: s.company_name || 'Paws Delivered',
+        company_address: s.company_address || '',
+        company_city: s.company_city || '',
+        company_state: s.company_state || '',
+        company_zip: s.company_zip || '',
+        company_phone: s.company_phone || '',
+      };
+    }
+
+    async function load() {
+      const statusEl = document.getElementById('statusMsg');
+      if (!orderIds.length) {
+        statusEl.textContent = 'Missing order_id in URL.';
+        return;
+      }
+      let fromInfo;
+      try {
+        fromInfo = await fetchFromInfo();
+      } catch (e) {
+        statusEl.textContent = e.message === 'unauthorized' ? 'Invalid token.' : 'Failed to load.';
+        return;
+      }
+      try {
+        const results = await Promise.allSettled(orderIds.map(fetchOrder));
+        const orders = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+        const failedCount = results.length - orders.length;
+
+        if (results.some(r => r.status === 'rejected' && r.reason?.message === 'unauthorized')) {
+          statusEl.textContent = 'Invalid token.';
+          return;
+        }
+        if (!orders.length) {
+          statusEl.textContent = 'Order not found.';
+          return;
+        }
+
+        document.getElementById('copies').innerHTML = orders.map(o => renderWaybill(o, fromInfo)).join('');
+
+        const loadedDesc = orders.length === 1
+          ? `${orders[0].pet_name}, order ${orders[0].order_id}`
+          : `${orders.length} orders`;
+        statusEl.textContent = `Loaded — ${loadedDesc}.` + (failedCount ? ` (${failedCount} failed to load)` : '');
+      } catch {
+        statusEl.textContent = 'Failed to load.';
+      }
+    }
+
+    document.getElementById('tokenInput').addEventListener('change', load);
+    load();
+  </script>
+</body>
+</html>

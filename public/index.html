@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paws Delivered &mdash; Puppies &amp; Kittens, Delivered</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2C5F8A;
+      --blue-dark: #234A6D;
+      --coral: #E8604C;
+      --coral-dark: #D14D3A;
+      --dark: #1a1a1a;
+      --gray: #444;
+      --light-gray: #F7F9FA;
+      --white: #ffffff;
+      --radius: 8px;
+      --bg: var(--white);
+      --section-bg: var(--light-gray);
+      --text: var(--dark);
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #12181C;
+      --section-bg: #1B2328;
+      --text: #ECECEC;
+      --gray: #9c9c9c;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+      color: var(--white);
+      text-align: center;
+      padding: 6rem 2rem 5rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(232, 96, 76, 0.15);
+      color: var(--coral);
+      border: 1px solid rgba(232, 96, 76, 0.4);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 { font-size: 2.75rem; font-weight: 900; line-height: 1.15; margin-bottom: 1rem; }
+    .hero p { font-size: 1.1rem; color: #ccc; max-width: 560px; margin: 0 auto 2rem; line-height: 1.6; }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn { display: inline-block; padding: 0.85rem 1.75rem; border-radius: var(--radius); font-weight: 700; font-size: 1rem; text-decoration: none; transition: background 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--coral); color: #fff; }
+    .btn-primary:hover { background: var(--coral-dark); }
+    .btn-outline { background: transparent; border: 2px solid #555; color: #fff; }
+    .btn-outline:hover { border-color: #fff; }
+
+    section { padding: 4rem 2rem; }
+    .section-inner { max-width: 1000px; margin: 0 auto; }
+    .section-title { font-size: 1.75rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; }
+    .section-sub { text-align: center; color: var(--gray); font-size: 1rem; max-width: 560px; margin: 0 auto 2.5rem; line-height: 1.6; }
+
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.75rem; }
+    .step { text-align: center; }
+    .step-num { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 800; margin-bottom: 1rem; }
+    .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step p { font-size: 0.92rem; color: var(--gray); line-height: 1.6; }
+
+    .why { background: var(--section-bg); }
+    .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .why-card { background: var(--bg); border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+    .why-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--blue); }
+    .why-card p { font-size: 0.9rem; color: var(--gray); line-height: 1.6; }
+
+    .cta { text-align: center; }
+    .cta h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.75rem; }
+    .cta p { color: var(--gray); margin-bottom: 1.75rem; }
+
+    footer { background: var(--dark); color: #888; text-align: center; padding: 1.5rem 2rem; font-size: 0.85rem; }
+    footer a { color: var(--coral); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .cookie-notice { margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.75rem; color: #888; }
+    .cookie-btn { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; border: 1px solid #555; background: transparent; color: #ccc; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .cookie-btn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+  </style>
+  <script src="/navbar.js"></script>
+  <script src="/shared.js"></script>
+</head>
+<body>
+
+  <section class="hero">
+    <span class="hero-badge">Now Delivering</span>
+    <h1>Puppies &amp; Kittens,<br>Delivered to Your Door</h1>
+    <p>Browse available listings, pay securely with CashApp, and we'll handle the rest &mdash; including ground transportation with our delivery partner, Puppy Travelers.</p>
+    <div class="hero-actions">
+      <a href="/browse" class="btn btn-primary">Browse Available Pets</a>
+      <a href="/how-it-works" class="btn btn-outline">How It Works</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-inner">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">From browsing to delivery in a few simple steps.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Browse Listings</h3>
+          <p>Every listing shows real photos, age, weight, breed, sex, registration, and health records.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Pay with CashApp</h3>
+          <p>Reserve your pet and send payment through CashApp with your order reference included.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>We Confirm &amp; Ship</h3>
+          <p>Once your payment is confirmed, we arrange delivery through Puppy Travelers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why">
+    <div class="section-inner">
+      <h2 class="section-title">Why Paws Delivered</h2>
+      <p class="section-sub"></p>
+      <div class="why-grid">
+        <div class="why-card">
+          <h3>Verified Listing Details</h3>
+          <p>Age, weight, sex, breed, registration, vaccination, and worming records for every listing.</p>
+        </div>
+        <div class="why-card">
+          <h3>Simple Payment</h3>
+          <p>No accounts, no complicated checkout &mdash; just CashApp.</p>
+        </div>
+        <div class="why-card">
+          <h3>Trusted Delivery</h3>
+          <p>Ground transportation handled by Puppy Travelers, an experienced pet delivery service.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="section-inner">
+      <h2>Ready to find your new best friend?</h2>
+      <p>New listings are added regularly.</p>
+      <a href="/browse" class="btn btn-primary">Browse Available Pets</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Paws Delivered. All rights reserved.
+      &nbsp;&bull;&nbsp;<a href="/privacy">Privacy Policy</a>
+      &nbsp;&bull;&nbsp;<a href="/terms">Terms of Service</a>
+    </p>
+    <div class="cookie-notice" id="cookieNotice">
+      <span>We don&rsquo;t do cookies here.</span>
+      <button type="button" class="cookie-btn" data-choice="accept">Accept</button>
+      <button type="button" class="cookie-btn" data-choice="reluctant">Accept Reluctantly</button>
+    </div>
+  </footer>
+
+</body>
+</html>

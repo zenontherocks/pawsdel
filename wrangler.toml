@@ -1,0 +1,12 @@
+name = "pawsdel-wkr-1"
+main = "src/worker.js"
+compatibility_date = "2026-08-20"
+assets = { directory = "./public" }
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pawsdel"
+database_id = "REPLACE_WITH_REAL_D1_DATABASE_ID"
+
+[triggers]
+crons = ["*/5 * * * *", "*/30 * * * *"]
