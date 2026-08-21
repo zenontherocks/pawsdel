@@ -128,9 +128,9 @@ function checkAdminToken(request, env, url) {
 // pbtmarketplace.com login (admin-console-configurable, not a Worker secret).
 async function getSettingsMap(env, keys) {
   const placeholders = keys.map(() => '?').join(',');
-  const rows = await env.DB.prepare(
-    `SELECT key, value FROM settings WHERE key IN (${placeholders})`
-  ).bind(...keys).all();
+  const rows = await env.DB.prepare(`
+    SELECT key, value FROM settings WHERE key IN (${placeholders})
+  `).bind(...keys).all();
   const map = {};
   for (const k of keys) map[k] = '';
   for (const row of (rows.results || [])) map[row.key] = row.value;
