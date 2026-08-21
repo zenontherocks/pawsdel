@@ -6,7 +6,7 @@ assets = { directory = "./public" }
 [[d1_databases]]
 binding = "DB"
 database_name = "pawsdel"
-database_id = "REPLACE_WITH_REAL_D1_DATABASE_ID"
+database_id = "94bd4880-b104-4e32-8733-6bfbc90a42d9"
 
 [triggers]
 crons = ["*/5 * * * *", "*/30 * * * *"]
