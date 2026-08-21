@@ -34,7 +34,14 @@ jobs:
           result-encoding: string
           script: |
             const branch = context.ref.replace('refs/heads/', '');
-            const base = context.payload.repository.default_branch;
+            // Hardcoded rather than context.payload.repository.default_branch:
+            // this repo's default branch isn't guaranteed to be 'main' (e.g.
+            // right after repo creation, before a 'main' branch exists, GitHub
+            // defaults to whatever branch was pushed first) and the deploy
+            // step below always checks out 'main' regardless, so the PR base
+            // must match that, not whatever the repo's default-branch setting
+            // happens to be.
+            const base = 'main';
             core.info(`Branch: ${branch}, Base: ${base}`);
 
             const { data: pulls } = await github.rest.pulls.list({
