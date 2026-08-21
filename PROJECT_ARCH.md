@@ -21,7 +21,7 @@ Worker bindings (from `wrangler.toml`):
 
 Worker secrets (`wrangler secret put`):
 - `ADMIN_TOKEN` — required. Gates every `/api/admin/*` route. Must stay a Worker secret, not a DB row (it can't be stored behind the very check it powers).
-- `BREVO_API_KEY` / `BREVO_SENDER_EMAIL` / `BREVO_SENDER_NAME` — optional. Order-confirmation emails are a no-op if unset.
+- `RESEND_API_KEY` / `RESEND_SENDER_EMAIL` / `RESEND_SENDER_NAME` — optional. Order-confirmation emails (buyer + admin) are a no-op if `RESEND_API_KEY` is unset. Sending requires a domain verified with Resend (SPF/DKIM DNS records) — `RESEND_SENDER_EMAIL` must be an address at that verified domain.
 - `ADMIN_NOTIFICATION_EMAIL` — optional. If unset, the admin copy of the order-confirmation email is simply not sent.
 
 Everything else configurable at runtime — CashApp cashtag/instructions, company/waybill info, pricing markup, and the scraper's own pbtmarketplace.com login — lives in the `settings` D1 table and is editable from the admin console's Settings page. There is no on-chain wallet, no BTC/USD price feed, and no user accounts anywhere in this project.
